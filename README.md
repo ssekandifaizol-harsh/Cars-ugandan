@@ -65,6 +65,14 @@ Add these 7 secrets in GitHub → repo **Settings → Secrets and variables → 
 
 To add a database change later: create a new file `supabase/migrations/<YYYYMMDDHHMMSS>_what_it_does.sql`. Never edit a migration that already ran.
 
+### 6. Google sign-in (owner/admin only)
+Google Cloud Console → OAuth client (Web application):
+- Authorized JavaScript origins: `https://cars-uganda.pages.dev`, `http://localhost:5173`
+- Authorized redirect URI: `https://shjiwcdvbadnyvzsbjga.supabase.co/auth/v1/callback`
+
+Supabase → Authentication → Sign In / Providers → Google → paste Client ID + Secret → Save.
+With public sign-up OFF, Google only works for emails already invited.
+
 ## Security, in plain words
 - **Row Level Security** on every table: the database itself refuses what you're not allowed to see, even if someone copies the app's key.
 - Buyers can only *read published cars* and *send* an enquiry. They can never read enquiries, private details, or drafts.
