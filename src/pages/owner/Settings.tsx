@@ -85,6 +85,12 @@ export default function Settings() {
       </section>
 
       <section className="card space-y-4 p-5">
+        <h2 className="font-display font-semibold">Customer reviews</h2>
+        <label className="flex items-center gap-3 text-sm"><input type="checkbox" className="size-5 accent-[var(--accent)]" checked={s.show_reviews} onChange={(e) => set('show_reviews', e.target.checked)} />Show the “What our customers say” section on the home page</label>
+        <p className="text-xs text-zinc-500">Only reviews you approved, from buyers who agreed, are ever shown. Turn this off to hide the whole section.</p>
+      </section>
+
+      <section className="card space-y-4 p-5">
         <h2 className="font-display font-semibold">Look</h2>
         <div className="flex flex-wrap gap-3">
           {ACCENTS.map((c) => <button type="button" key={c} onClick={() => set('accent', c)} aria-label={c} style={{ background: c }} className={`size-10 rounded-full ring-offset-2 ring-offset-white transition dark:ring-offset-zinc-900 ${s.accent === c ? 'ring-2 ring-zinc-900 dark:ring-white' : ''}`} />)}

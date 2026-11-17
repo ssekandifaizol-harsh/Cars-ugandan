@@ -1,7 +1,10 @@
 import { ArrowRight, BadgeCheck, MessageCircle, Search, ShieldCheck } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import type { Review } from '../lib/types'
+import { Stars } from '../components/Stars'
 import { useCars } from '../hooks/useCars'
 import { useApp } from '../hooks/useApp'
 import { CarCard, CarCardSkeleton } from '../components/CarCard'
@@ -16,6 +19,15 @@ export default function Home() {
   const { cars, error } = useCars()
   const nav = useNavigate()
   const [q, setQ] = useState('')
+  const [reviews, setReviews] = useState<Review[]>([])
+
+  // The database only returns reviews the buyer allowed AND the owner approved.
+  useEffect(() => {
+    if (!shop?.show_reviews) { setReviews([]); return }
+    supabase.from('reviews').select('id, display_name, car_label, rating_overall, comment, created_at')
+      .eq('shop_id', shop.id).order('created_at', { ascending: false }).limit(9)
+      .then(({ data }) => setReviews((data as Review[]) ?? []))
+  }, [shop?.id, shop?.show_reviews])
 
   const available = (cars ?? []).filter((c) => c.status !== 'sold')
   const featured = available.filter((c) => c.featured).slice(0, 6)
@@ -90,6 +102,22 @@ export default function Home() {
           </div>
           {cars?.length === 0 && <p className="card p-10 text-center text-zinc-500">No cars listed yet. Check back soon!</p>}
         </section>
+
+        {reviews.length > 0 && (
+          <section className="mt-16">
+            <Reveal><h2 className="font-display text-2xl font-bold">What our customers say</h2></Reveal>
+            <div className="no-scrollbar -mx-4 mt-5 flex snap-x gap-4 overflow-x-auto px-4 pb-2">
+              {reviews.map((r, i) => (
+                <Reveal key={r.id} delay={i * 0.05} className="card w-80 shrink-0 snap-start p-5">
+                  <Stars value={r.rating_overall} />
+                  {r.comment && <p className="mt-3 line-clamp-6 text-zinc-700 dark:text-zinc-300">“{r.comment}”</p>}
+                  <p className="mt-4 text-sm font-semibold">{r.display_name || 'Verified buyer'}</p>
+                  <p className="text-xs text-zinc-500">Bought a {r.car_label}</p>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Trust */}
         <section className="mt-16 grid gap-4 md:grid-cols-3">

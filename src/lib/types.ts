@@ -20,6 +20,7 @@ export interface Shop {
   facebook: string | null
   instagram: string | null
   tiktok: string | null
+  show_reviews: boolean
 }
 
 export interface Car {
@@ -80,4 +81,37 @@ export interface Enquiry {
   status: 'new' | 'contacted' | 'closed'
   created_at: string
   cars?: Pick<Car, 'make' | 'model' | 'year' | 'slug'> | null
+}
+
+export interface Sale {
+  id: string
+  shop_id: string
+  car_id: string | null
+  car_label: string
+  buyer_name: string
+  buyer_phone: string
+  sold_price: number | null
+  sold_at: string
+  survey_token: string
+  survey_expires_at: string
+  survey_sent_at: string | null
+  created_at: string
+  reviews?: Pick<Review, 'id'>[]
+}
+
+export interface Review {
+  id: string
+  shop_id: string
+  sale_id: string
+  car_label: string
+  rating_overall: number
+  rating_car: number | null
+  rating_service: number | null
+  rating_value: number | null
+  recommend: boolean | null
+  comment: string | null
+  display_name: string | null
+  allow_publish: boolean
+  status: 'pending' | 'approved' | 'hidden'
+  created_at: string
 }

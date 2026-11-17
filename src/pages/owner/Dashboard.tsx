@@ -1,6 +1,6 @@
 import { Eye, EyeOff, Pencil, Plus, Star, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase, photoUrl } from '../../lib/supabase'
 import type { Car, Status } from '../../lib/types'
 import { useApp } from '../../hooks/useApp'
@@ -12,6 +12,7 @@ export default function Dashboard() {
   const { shop } = useApp()
   const [cars, setCars] = useState<Car[] | null>(null)
   const [tab, setTab] = useState<'all' | 'drafts' | Status>('all')
+  const nav = useNavigate()
 
   const load = async () => {
     if (!shop) return
@@ -25,6 +26,9 @@ export default function Dashboard() {
     const { error } = await supabase.from('cars').update(change).eq('id', id)
     if (error) { alert('Could not save. Check your internet.'); load() }
     invalidateCars()
+    if (change.status === 'sold' && confirm('Marked as sold. Record the buyer now so you can send them a satisfaction survey?')) {
+      nav(`/owner/sales?car=${id}`)
+    }
   }
 
   const remove = async (car: Car) => {

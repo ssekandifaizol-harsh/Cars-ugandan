@@ -1,14 +1,23 @@
-import { Car, Inbox, LogOut, Settings, Shield } from 'lucide-react'
+import { Car, Inbox, LogOut, Settings, Shield, Star } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useApp } from '../../hooks/useApp'
 import { useNewEnquiryCount } from './useEnquiryAlerts'
 
 export default function OwnerShell() {
-  const { role, signOut } = useApp()
+  const { role, signOut, shop } = useApp()
   const unread = useNewEnquiryCount()
+  const [newReviews, setNewReviews] = useState(0)
+  useEffect(() => {
+    if (!shop) return
+    supabase.from('reviews').select('id', { count: 'exact', head: true }).eq('shop_id', shop.id).eq('status', 'pending')
+      .then(({ count }) => setNewReviews(count ?? 0))
+  }, [shop])
   const links = [
     { to: '/owner', label: 'My cars', icon: Car, end: true },
     { to: '/owner/enquiries', label: 'Enquiries', icon: Inbox, badge: unread },
+    { to: '/owner/sales', label: 'Sales & reviews', icon: Star, badge: newReviews },
     { to: '/owner/settings', label: 'Shop settings', icon: Settings },
     ...(role === 'admin' ? [{ to: '/owner/admin', label: 'Admin', icon: Shield }] : []),
   ]
