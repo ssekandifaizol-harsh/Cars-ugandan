@@ -11,6 +11,12 @@ import Contact from './pages/Contact'
 import Login from './pages/Login'
 import ResetPassword from './pages/ResetPassword'
 import Review from './pages/Review'
+import Signup from './pages/Signup'
+import Account from './pages/Account'
+import { UpdatePrompt } from './components/UpdatePrompt'
+import { InstallSheet } from './components/InstallSheet'
+import { TermsGate } from './components/TermsGate'
+import { NewCarAlerts } from './components/NewCarAlerts'
 
 // Owner screens load only when needed, so buyers download less.
 const OwnerShell = lazy(() => import('./pages/owner/OwnerShell'))
@@ -20,6 +26,9 @@ const Enquiries = lazy(() => import('./pages/owner/Enquiries'))
 const Sales = lazy(() => import('./pages/owner/Sales'))
 const Settings = lazy(() => import('./pages/owner/Settings'))
 const Admin = lazy(() => import('./pages/admin/Admin'))
+const Privacy = lazy(() => import('./pages/Privacy'))
+const Terms = lazy(() => import('./pages/Terms'))
+const Licenses = lazy(() => import('./pages/Licenses'))
 
 export default function App() {
   return (
@@ -34,6 +43,11 @@ export default function App() {
               <Route path="saved" element={<Saved />} />
               <Route path="contact" element={<Contact />} />
               <Route path="login" element={<Login />} />
+              <Route path="signup" element={<Signup />} />
+              <Route path="account" element={<Account />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
+              <Route path="licenses" element={<Licenses />} />
               <Route path="reset-password" element={<ResetPassword />} />
               <Route path="review/:token" element={<Review />} />
               <Route path="owner" element={<RequireManager />}>
@@ -53,6 +67,10 @@ export default function App() {
             </Route>
           </Routes>
         </Suspense>
+        <TermsGate />
+        <InstallSheet />
+        <NewCarAlerts />
+        <UpdatePrompt />
       </BrowserRouter>
     </AppProvider>
   )

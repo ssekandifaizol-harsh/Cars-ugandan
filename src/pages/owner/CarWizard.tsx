@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { photoUrl, supabase, PHOTO_BUCKET } from '../../lib/supabase'
 import { useApp } from '../../hooks/useApp'
 import { invalidateCars } from '../../hooks/useCars'
+import { announceCar } from '../../lib/push'
 import {
   BODY_TYPES, COLOURS, CONDITIONS, DRIVES, ENGINE_SIZES, FEATURES, FUELS, MAKES, PHOTO_ANGLES, TRANSMISSIONS,
 } from '../../lib/carData'
@@ -166,6 +167,7 @@ export default function CarWizard() {
       if (removed.length) await supabase.storage.from(PHOTO_BUCKET).remove(removed)
       if (!id) localStorage.removeItem(DRAFT_KEY)
       invalidateCars()
+      if (publish) announceCar(f.id) // tells customers' phones (only once per car)
       nav('/owner')
     } catch (e) {
       console.error(e)

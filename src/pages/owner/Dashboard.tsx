@@ -5,6 +5,7 @@ import { supabase, photoUrl } from '../../lib/supabase'
 import type { Car, Status } from '../../lib/types'
 import { useApp } from '../../hooks/useApp'
 import { invalidateCars } from '../../hooks/useCars'
+import { announceCar } from '../../lib/push'
 import { carTitle, priceText } from '../../lib/format'
 import { Seo } from '../../components/Seo'
 
@@ -26,6 +27,7 @@ export default function Dashboard() {
     const { error } = await supabase.from('cars').update(change).eq('id', id)
     if (error) { alert('Could not save. Check your internet.'); load() }
     invalidateCars()
+    if (change.published) announceCar(id)
     if (change.status === 'sold' && confirm('Marked as sold. Record the buyer now so you can send them a satisfaction survey?')) {
       nav(`/owner/sales?car=${id}`)
     }

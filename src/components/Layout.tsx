@@ -1,4 +1,4 @@
-import { Car, Heart, Home, LayoutDashboard, Phone, Search } from 'lucide-react'
+import { Car, Heart, Home, LayoutDashboard, Phone, Search, User } from 'lucide-react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -8,7 +8,7 @@ import { ThemeToggle } from './ThemeToggle'
 import { useFavourites } from '../lib/favourites'
 
 export function Layout() {
-  const { shop, canManage } = useApp()
+  const { shop, canManage, session } = useApp()
   const { pathname } = useLocation()
   const favs = useFavourites()
 
@@ -19,8 +19,10 @@ export function Layout() {
     { to: '/cars', label: 'Browse', icon: Search },
     { to: '/saved', label: 'Saved', icon: Heart, badge: favs.length },
     { to: '/contact', label: 'Contact', icon: Phone },
-    ...(canManage ? [{ to: '/owner', label: 'Manage', icon: LayoutDashboard }] : []),
+    session ? { to: '/account', label: 'Account', icon: User } : { to: '/login', label: 'Log in', icon: User },
   ]
+  // On phones, Manage lives inside Account (keeps the bottom bar to 5 buttons). On big screens it's in the top bar.
+  const desktopTabs = canManage ? [...tabs.slice(0, 4), { to: '/owner', label: 'Manage', icon: LayoutDashboard }, tabs[4]] : tabs
 
   return (
     <div className="min-h-dvh pb-20 md:pb-0">
@@ -38,7 +40,7 @@ export function Layout() {
             <span className="font-display text-lg font-bold tracking-tight">{shop?.name ?? 'Cars Uganda'}</span>
           </Link>
           <nav className="ml-8 hidden gap-1 md:flex">
-            {tabs.map((t) => (
+            {desktopTabs.map((t) => (
               <NavLink key={t.to} to={t.to} end={t.end}
                 className={({ isActive }) => `rounded-full px-4 py-2 text-sm font-medium transition ${isActive ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
                 {t.label}
@@ -57,7 +59,12 @@ export function Layout() {
 
       <footer className="mt-16 border-t border-zinc-200 py-8 text-center text-sm text-zinc-500 dark:border-zinc-800">
         © {new Date().getFullYear()} {shop?.name ?? 'Cars Uganda'} · {shop?.address ?? 'Kampala, Uganda'}
-        <div className="mt-2"><Link to="/login" className="underline-offset-4 hover:underline">Owner login</Link></div>
+        <div className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1">
+          <Link to="/privacy" className="hover:underline">Privacy</Link>
+          <Link to="/terms" className="hover:underline">Terms</Link>
+          <Link to="/licenses" className="hover:underline">Licenses</Link>
+          {!session && <Link to="/signup" className="hover:underline">Create account</Link>}
+        </div>
       </footer>
 
       {/* Bottom tab bar for phones */}

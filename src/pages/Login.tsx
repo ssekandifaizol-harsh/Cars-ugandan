@@ -1,10 +1,27 @@
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useApp } from '../hooks/useApp'
 import { Seo } from '../components/Seo'
 
-// No sign-up button on purpose: owners are invited by the admin only.
+export function GoogleButton({ label = 'Continue with Google', className = '' }: { label?: string; className?: string }) {
+  const [err, setErr] = useState('')
+  const go = async () => {
+    setErr('')
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${location.origin}/account`, queryParams: { prompt: 'select_account' } },
+    })
+    if (error) setErr('Google sign-in is not available right now. Use email instead.')
+  }
+  return (
+    <>
+      <button type="button" onClick={go} className={`btn-ghost w-full border border-zinc-200 dark:border-zinc-700 ${className}`}><GoogleIcon /> {label}</button>
+      {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
+    </>
+  )
+}
+
 export default function Login() {
   const { session, canManage } = useApp()
   const nav = useNavigate()
@@ -14,25 +31,15 @@ export default function Login() {
   const [msg, setMsg] = useState('')
   const [busy, setBusy] = useState(false)
 
-  if (session && canManage) return <Navigate to="/owner" replace />
-
-  // Google: works only for emails the admin already invited (public sign-up is off in Supabase).
-  const google = async () => {
-    setMsg(''); setBusy(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${location.origin}/owner`, queryParams: { prompt: 'select_account' } },
-    })
-    if (error) { setBusy(false); setMsg('Google sign-in is not available right now. Use email and password.') }
-  }
+  if (session) return <Navigate to={canManage ? '/owner' : '/account'} replace />
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault(); setMsg(''); setBusy(true)
     if (mode === 'login') {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
       setBusy(false)
-      if (error) return setMsg('Wrong email or password.')
-      nav('/owner')
+      if (error) return setMsg(error.message.includes('confirm') ? 'Please confirm your email first — check your inbox.' : 'Wrong email or password.')
+      nav('/account')
     } else {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${location.origin}/reset-password` })
       setBusy(false)
@@ -41,18 +48,14 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center px-4">
-      <Seo title="Owner login" />
-      <h1 className="font-display text-3xl font-bold">{mode === 'login' ? 'Owner login' : 'Reset password'}</h1>
-      <p className="mt-1 text-zinc-500">For the showroom team only.</p>
-      {mode === 'login' && (
-        <>
-          <button type="button" onClick={google} disabled={busy} className="btn-ghost mt-6 w-full border border-zinc-200 dark:border-zinc-700">
-            <GoogleIcon /> Continue with Google
-          </button>
-          <div className="my-5 flex items-center gap-3 text-xs text-zinc-500"><span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />or with email<span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" /></div>
-        </>
-      )}
+    <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center px-4 py-8">
+      <Seo title="Log in" />
+      <h1 className="font-display text-3xl font-bold">{mode === 'login' ? 'Welcome back' : 'Reset password'}</h1>
+      <p className="mt-1 text-zinc-500">{mode === 'login' ? 'Log in to see your saved cars and alerts.' : "We'll email you a link."}</p>
+      {mode === 'login' && <>
+        <GoogleButton className="mt-6" />
+        <div className="my-5 flex items-center gap-3 text-xs text-zinc-500"><span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />or with email<span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" /></div>
+      </>}
       <form onSubmit={submit} className={`${mode === 'login' ? '' : 'mt-6 '}space-y-3`}>
         <input className="input" type="email" placeholder="Email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         {mode === 'login' && <input className="input" type="password" placeholder="Password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />}
@@ -62,7 +65,7 @@ export default function Login() {
       <button className="mt-4 text-sm font-medium text-accent" onClick={() => { setMode(mode === 'login' ? 'forgot' : 'login'); setMsg('') }}>
         {mode === 'login' ? 'Forgot password?' : 'Back to login'}
       </button>
-      {session && !canManage && <p className="mt-6 rounded-xl bg-amber-100 p-3 text-sm text-amber-900">You are logged in but have no owner access yet. Ask the admin.</p>}
+      {mode === 'login' && <p className="mt-5 text-center text-sm text-zinc-500">New here? <Link to="/signup" className="font-semibold text-accent">Create an account</Link></p>}
     </div>
   )
 }

@@ -73,6 +73,10 @@ Google Cloud Console → OAuth client (Web application):
 Supabase → Authentication → Sign In / Providers → Google → paste Client ID + Secret → Save.
 With public sign-up OFF, Google only works for emails already invited.
 
+### 7. Notifications (one-time)
+Supabase → Edge Functions → Secrets → add `VAPID_PRIVATE_KEY` (the private half of the push keys; the public half is in `src/lib/vapid.ts`).
+The pipeline deploys `supabase/functions/notify-new-car` on every push.
+
 ## Security, in plain words
 - **Row Level Security** on every table: the database itself refuses what you're not allowed to see, even if someone copies the app's key.
 - Buyers can only *read published cars* and *send* an enquiry. They can never read enquiries, private details, or drafts.

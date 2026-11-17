@@ -6,9 +6,9 @@ import type { Car } from '../lib/types'
 import { useApp } from '../hooks/useApp'
 
 export function EnquiryForm({ car }: { car?: Car }) {
-  const { shop } = useApp()
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
+  const { shop, profile } = useApp()
+  const [name, setName] = useState(profile?.full_name ?? '')
+  const [phone, setPhone] = useState(profile?.phone ?? '')
   const [message, setMessage] = useState(car ? `Hi, I'm interested in the ${car.year} ${car.make} ${car.model}. Is it still available?` : '')
   const [trap, setTrap] = useState('') // hidden field: bots fill it, people don't
   const [state, setState] = useState<'idle' | 'sending' | 'done'>('idle')

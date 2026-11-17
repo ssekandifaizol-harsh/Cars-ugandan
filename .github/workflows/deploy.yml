@@ -33,6 +33,8 @@ jobs:
         run: supabase db push --remote --dry-run
       - name: Apply new migrations
         run: supabase db push --remote --yes
+      - name: Deploy server functions (notifications)
+        run: supabase functions deploy --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}" --use-api
 
   website:
     needs: database

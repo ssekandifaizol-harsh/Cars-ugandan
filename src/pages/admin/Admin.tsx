@@ -38,7 +38,7 @@ export default function Admin() {
 
       <section className="card space-y-3 p-5">
         <h2 className="font-display font-semibold">Give owner access</h2>
-        <p className="text-sm text-zinc-500">Step 1: invite the person in Supabase → Authentication → Users → “Invite user”. Step 2: once they accept, type their email here.</p>
+        <p className="text-sm text-zinc-500">Step 1: the person creates an account on the site (Sign up, or Continue with Google). Step 2: type their email here.</p>
         <div className="flex gap-2">
           <input className="input" type="email" placeholder="owner@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
           <button className="btn-primary" onClick={() => setOwner(email, true)}>Make owner</button>

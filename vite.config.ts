@@ -8,9 +8,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      strategies: 'injectManifest', // our own service worker (src/sw.ts) so we can receive notifications
+      srcDir: 'src',
+      filename: 'sw.ts',
+      registerType: 'prompt', // never switch versions silently; the app shows an "Update" pop-up
+      injectRegister: false,
       includeAssets: ['icon.svg'],
       manifest: {
+        id: '/',
         name: 'Cars Uganda',
         short_name: 'Cars Uganda',
         description: 'Quality cars for sale in Uganda',
@@ -18,21 +23,10 @@ export default defineConfig({
         background_color: '#0b0b0f',
         display: 'standalone',
         start_url: '/',
-        icons: [
-          { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
-        ],
+        scope: '/',
+        icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
-      workbox: {
-        navigateFallback: '/index.html',
-        runtimeCaching: [
-          {
-            // Car photos from Supabase Storage: show cached copy instantly, refresh in background
-            urlPattern: /\/storage\/v1\/object\/public\//,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'car-photos', expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 14 } },
-          },
-        ],
-      },
+      injectManifest: { globPatterns: ['**/*.{js,css,html,svg,webmanifest}'] },
     }),
   ],
 })

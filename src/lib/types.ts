@@ -1,4 +1,19 @@
-export type Role = 'admin' | 'owner' | 'none'
+export type Role = 'admin' | 'owner' | 'customer'
+
+export interface Profile {
+  id: string
+  email: string
+  full_name: string | null
+  role: Role
+  phone: string | null
+  location: string | null
+  accepted_terms_version: number | null
+  accepted_terms_at: string | null
+  notify_new_cars: boolean
+  notify_sound: boolean
+  notify_makes: string[]
+  notify_max_price: number | null
+}
 export type Status = 'available' | 'reserved' | 'sold'
 
 export interface Shop {
@@ -47,6 +62,7 @@ export interface Car {
   status: Status
   published: boolean
   featured: boolean
+  notified_at?: string | null
   cover_path: string | null
   created_at: string
   updated_at: string
