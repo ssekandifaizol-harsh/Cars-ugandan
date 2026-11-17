@@ -57,7 +57,7 @@ Add these 7 secrets in GitHub → repo **Settings → Secrets and variables → 
 | `SUPABASE_PROJECT_ID` | The project ref: the part of the URL before `.supabase.co` |
 | `SUPABASE_DB_PASSWORD` | The database password you set when creating the project (reset it under Project Settings → Database if forgotten) |
 | `SUPABASE_ACCESS_TOKEN` | supabase.com → your avatar → Account → Access Tokens → Generate |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → Create Token → template **Edit Cloudflare Workers**, or custom with *Account › Cloudflare Pages › Edit* |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → Create Token → **Create Custom Token** → Permissions: *Account · Cloudflare Pages · Edit* → Account Resources: your account |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare dashboard → Workers & Pages → right side "Account ID" |
 
 **Check:** GitHub → **Actions** tab → latest "Deploy" run is green. The site is at `https://cars-uganda.pages.dev`.
