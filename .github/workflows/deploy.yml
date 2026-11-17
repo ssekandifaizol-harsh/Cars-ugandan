@@ -32,7 +32,7 @@ jobs:
       - name: Show what will change
         run: supabase db push --remote --dry-run
       - name: Apply new migrations
-        run: supabase db push --remote
+        run: supabase db push --remote --yes
 
   website:
     needs: database
