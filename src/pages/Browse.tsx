@@ -121,7 +121,7 @@ export default function Browse() {
                     <CarCard car={c} />
                   </motion.div>))}</AnimatePresence>}
           </motion.div>
-          {cars && list.length === 0 && <p className="card mt-4 p-10 text-center text-zinc-500">No cars match. Try removing a filter.</p>}
+          {cars && list.length === 0 && <p className="card mt-4 p-10 text-center text-zinc-500">{cars.length === 0 ? 'No cars listed yet. Check back soon!' : 'No cars match. Try removing a filter.'}</p>}
         </div>
       </div>
 

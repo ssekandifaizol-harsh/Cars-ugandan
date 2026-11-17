@@ -14,7 +14,7 @@ A car-selling web app (PWA) for a showroom in Uganda. Buyers browse cars and enq
 
 ### 1. Supabase database
 1. Open your Supabase project → **SQL Editor** → New query.
-2. Paste all of `supabase/migrations/0001_init.sql` and press **Run**.
+2. Easiest: let the GitHub pipeline (step 5) run it for you. By hand: paste all of `supabase/migrations/20261117000000_init.sql` and press **Run** — but then the pipeline will try to run it again, so pick one way.
    - **Check:** Table Editor shows `shops`, `cars`, `car_private`, `car_photos`, `enquiries`, `profiles`, `audit_log`. Storage shows a bucket `car-photos`.
    - **If it fails:** read the error line number. Running it twice gives "already exists" errors — that's fine if the first run worked.
 3. **Authentication → Providers → Email:** keep Email on. **Authentication → Sign In / Up:** turn **off** "Allow new users to sign up". Why: only people you invite can log in.
@@ -41,12 +41,29 @@ npm run dev               # open http://localhost:5173
 ```
 **If the yellow "Setup needed" bar shows:** `.env` is missing or the names are wrong. Restart `npm run dev` after editing it.
 
-### 5. Host on Cloudflare Pages
-1. Cloudflare → **Workers & Pages → Create → Pages → Connect to Git** → pick this repo.
-2. Build command `npm run build`, output folder `dist`.
-3. Add environment variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
-4. Deploy. Every push to `main` goes live in about 2 minutes.
-   - **If the build fails:** open the build log; it's almost always a missing environment variable.
+### 5. Automatic deploys (GitHub → Supabase → Cloudflare)
+Every push to `main` runs `.github/workflows/deploy.yml`:
+1. **database** — sends new files in `supabase/migrations/` to Supabase (`supabase db push`).
+2. **website** — builds the app and publishes it to Cloudflare Pages project `cars-uganda`.
+
+Pull requests only build and get a preview link; they never touch the real database.
+
+Add these 7 secrets in GitHub → repo **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Secret name | Where to get it |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API Keys → Publishable key (`sb_publishable_…`) |
+| `SUPABASE_PROJECT_ID` | The project ref: the part of the URL before `.supabase.co` |
+| `SUPABASE_DB_PASSWORD` | The database password you set when creating the project (reset it under Project Settings → Database if forgotten) |
+| `SUPABASE_ACCESS_TOKEN` | supabase.com → your avatar → Account → Access Tokens → Generate |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → Create Token → template **Edit Cloudflare Workers**, or custom with *Account › Cloudflare Pages › Edit* |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare dashboard → Workers & Pages → right side "Account ID" |
+
+**Check:** GitHub → **Actions** tab → latest "Deploy" run is green. The site is at `https://cars-uganda.pages.dev`.
+**If it fails:** click the red step. "Invalid access token" = wrong `SUPABASE_ACCESS_TOKEN`; "password authentication failed" = wrong `SUPABASE_DB_PASSWORD`; "Authentication error" from Cloudflare = token missing the Pages permission.
+
+To add a database change later: create a new file `supabase/migrations/<YYYYMMDDHHMMSS>_what_it_does.sql`. Never edit a migration that already ran.
 
 ## Security, in plain words
 - **Row Level Security** on every table: the database itself refuses what you're not allowed to see, even if someone copies the app's key.
